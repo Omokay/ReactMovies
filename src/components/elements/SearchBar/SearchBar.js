@@ -12,12 +12,11 @@ class SearchBar extends Component {
     timeout = null;
 
     doSearch = (event) => {
-        this.setState({
-            value: event.target.value
-        });
+        this.setState({ value: event.target.value })
         clearTimeout(this.timeout);
-
-        this.timeout = setTimeout(() => {
+        // Set a timeout to wait for the user to stop writing
+        // So we don´t have to make unnessesary calls
+        this.timeout = setTimeout( () => {
             this.props.callback(this.state.value);
         }, 500);
     }
@@ -28,7 +27,11 @@ class SearchBar extends Component {
                 <div className="rmdb-searchbar">
                     <div className="rmdb-searchbar-content">
                         <FontAwesome className="rmdb-fa-search" name="search" size="2px" />
-                        <input type="text" className="rmdb-search-input" placeholder="Search" onChange={this.doSearch} value={this.state.value} />
+                        <input type="text" 
+                        className="rmdb-searchbar-input" 
+                        placeholder="Search" 
+                        onChange={this.doSearch} 
+                        value={this.state.value} />
 
                     </div>
                 </div>
