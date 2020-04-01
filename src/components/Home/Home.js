@@ -39,21 +39,22 @@ class Home extends Component {
         if (searchTerm === '') {
             endpoint = `${API_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
         }
-        else if (endpoint === searchTerm) {
-            endpoint = `${API_URL}/movie/popular?api_key=${API_KEY}&language=en-US&query=${searchTerm}`;
+        else {
+            endpoint = `${API_URL}/search/movie?api_key=${API_KEY}&language=en-US&query=${searchTerm}`;
         }
 
         this.fetchItems(endpoint);
     }
     // Load more button will handle populating more movies on the view taking into consideration the contents of the search box
     loadMoreItems = () => {
+        const { searchTerm, currentPage } = this.state;
         let endpoint = '';
         this.setState({ loading: true });
 
-        if (this.state.searchTerm === '') {
-            endpoint = `${API_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=${this.state.currentPage + 1}`;
+        if (searchTerm === '') {
+            endpoint = `${API_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=${currentPage + 1}`;
         } else {
-            endpoint = `${API_URL}/search/movie?api_key=${API_KEY}&language=en-US&query=${this.state.searchTerm}&page=${this.state.currentPage + 1}`;
+            endpoint = `${API_URL}/search/movie?api_key=${API_KEY}&language=en-US&query=${searchTerm}&page=${currentPage + 1}`;
         }
 
         this.fetchItems(endpoint);
@@ -112,7 +113,7 @@ class Home extends Component {
                     <LoadMoreBtn text="Load More" onClick={this.loadMoreItems} /> : 
                     null 
                     } 
-                    
+
                 </div>
                 {/* <Spinner /> */}
             </div>

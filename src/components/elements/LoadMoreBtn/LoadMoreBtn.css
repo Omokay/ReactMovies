@@ -9,6 +9,11 @@
   border-radius: 20px;
 }
 
+.rmdb-loadmorebtn .btntxt {
+  margin: 0 auto;
+  top: 50%;
+}
+
 .rmdb-loadmorebtn p {
   font-family: 'Abel', sans-serif;
   font-size:42px;
