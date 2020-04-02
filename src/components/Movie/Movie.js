@@ -11,6 +11,31 @@ import './Movie.css'
 
 
 class Movie extends Component {
+
+    state = {
+        movie: null,
+        actor: null,
+        director: [],
+        loading: false
+    }
+
+    componentDidMount() {
+        this.setState({
+            loading: true
+        });
+
+    const endpoint = `${API_URL}movie/${this.props.match.params.movieId}?api_keys=${API_KEY}&language=en-US`;
+    this.fetchItems(endpoint);
+    }
+
+    fetchItems = (endpoint) => {
+        fetch(endpoint)
+        .then(result => result.json())
+        .then(result => {
+             
+        })
+    }
+    
     render() {
         return (
             <div className="rmdb-movie">
