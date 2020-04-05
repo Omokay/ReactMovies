@@ -21,11 +21,19 @@ class Home extends Component {
     }
 
     componentDidMount() {
-        this.setState({
-            loading: true
-        });
-        const endpoint = `${API_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=3`;
-        this.fetchItems(endpoint);
+
+        if (localStorage.getItem('HomeState')) {
+            // Takes string from the local storage and converts it back to a state object 
+            const state = JSON.parse(localStorage.getItem('HomeState'));
+            this.setState({ ...state });
+        }
+        else {
+            this.setState({
+                loading: true
+            });
+            const endpoint = `${API_URL}/movie/popular?api_key=${API_KEY}&language=en-US&page=3`;
+            this.fetchItems(endpoint);
+        }
     }
 
     searchItems = (searchTerm) => {
@@ -45,7 +53,7 @@ class Home extends Component {
 
         this.fetchItems(endpoint);
     }
-    // Load more button will handle populating more movies on the view taking into consideration the contents of the search box
+    // Load-more button will handle populating more movies on the view taking into consideration contents of the search box
     loadMoreItems = () => {
         const { searchTerm, currentPage } = this.state;
         let endpoint = '';
@@ -60,59 +68,91 @@ class Home extends Component {
         this.fetchItems(endpoint);
 
     }
-    // Method to Fetch Movies from API
-    fetchItems = (endpoint) => {
-        fetch(endpoint)
-            .then(result => result.json())
-            .then(result => {
-                console.log(result);
-                this.setState({
-                    movies: [...this.state.movies, ...result.results],
-                    heroImage: this.state.heroImage || result.results[0],
-                    loading: false,
-                    currentPage: result.page,
-                    totalPages: result.total_pages
-                })
+
+    // Method to Fetch Movies from API using Async and Await
+    fetchItems = async endpoint => {
+        const { movies, heroImage, searchTerm } = this.state;
+        const result = await (await fetch(endpoint)).json();
+        try {
+            this.setState({
+                movies: [...movies, ...result.results],
+                heroImage: heroImage || result.results[0],
+                loading: false,
+                currentPage: result.page,
+                totalPages: result.total_pages
+            }, () => {
+                // Only save state to local storage when search input is empty
+                if (searchTerm === '') {
+                    localStorage.setItem('HomeState', JSON.stringify(this.state));
+                }
             })
-            .catch(error => console.error('Error:', error))
+        } catch (e) {
+            console.log('Error: ', e);
+        }
     }
 
+
+    // Method to Fetch Movies from API
+    // fetchItems = (endpoint) => {
+    //     fetch(endpoint)
+    //         .then(result => result.json())
+    //         .then(result => {
+    //             this.setState({
+    //                 movies: [...this.state.movies, ...result.results],
+    //                 heroImage: this.state.heroImage || result.results[0],
+    //                 loading: false,
+    //                 currentPage: result.page,
+    //                 totalPages: result.total_pages
+    //             }, () => {
+    //                 // Only save state to local storage when search input is empty
+    //                 if (this.state.searchTerm === '') {
+    //                     localStorage.setItem('HomeState', JSON.stringify(this.state));
+    //                 }
+    //             })
+    //         })
+    //         .catch(error => console.error('Error:', error));
+    // }
+
     render() {
+
+        const { movies, heroImage, loading, currentPage, totalPages, searchTerm } = this.state;
+
+
         return (
             <div className="rmdb-home">
                 {/* Ternary Operator checking if Hero Image is available */}
-                {this.state.heroImage ?
+                {heroImage ?
                     <div>
                         <HeroImage
-                            image={`${IMAGE_BASE_URL}${BACKDROP_SIZE}${this.state.heroImage.backdrop_path}`}
-                            title={this.state.heroImage.original_title}
-                            text={this.state.heroImage.overview}
+                            image={`${IMAGE_BASE_URL}${BACKDROP_SIZE}${heroImage.backdrop_path}`}
+                            title={heroImage.original_title}
+                            text={heroImage.overview}
                         />
                         <SearchBar callback={this.searchItems} />
                     </div> : null}
 
                 <div className="rmdb-home-grid">
                     <FourColGrid
-                        header={this.state.searchTerm ? 'Search Results' : 'Popular Movies'}
-                        loading={this.state.loading} 
-                        >
-                        {this.state.movies.map((element, i) => {
-                            return  <MovieThumb
-                                key = {i}
-                                clickable = {true}
+                        header={searchTerm ? 'Search Results' : 'Popular Movies'}
+                        loading={loading}
+                    >
+                        {movies.map((element, i) => {
+                            return <MovieThumb
+                                key={i}
+                                clickable={true}
                                 image={element.poster_path ? `${IMAGE_BASE_URL}${POSTER_SIZE}/${element.poster_path}` : './images/no_image.jpg'}
                                 movieId={element.id}
                                 movieName={element.original_title}
-                                /> 
+                            />
                         })}
                     </FourColGrid>
-                    {this.state.loading ? <Spinner /> : null}
-                    
+                    {loading ? <Spinner /> : null}
+
                     {
-                    (this.state.currentPage <= this.state.totalPages && !this.state.loading) ? 
-                    <LoadMoreBtn text="Load More" onClick={this.loadMoreItems} /> : 
-                    null 
-                    } 
+                        (currentPage <= totalPages && !loading) ?
+                            <LoadMoreBtn text="Load More" onClick={this.loadMoreItems} /> :
+                            null
+                    }
 
                 </div>
                 {/* <Spinner /> */}

@@ -1,11 +1,12 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import './FourColGrid.css'
 
 const FourColGrid = (props) => {
     const renderElements = () => {
         const gridElements = props.children.map((element, i) => {
             return (
-                <div className="rmdb-grid-element" key={1}>
+                <div className="rmdb-grid-element" key={i}>
                     {element}
                 </div>
             )
@@ -20,6 +21,11 @@ const FourColGrid = (props) => {
             </div>
         </div>
     )
+}
+
+FourColGrid.propTypes = {
+    header: PropTypes.string,
+    loading: PropTypes.bool
 }
 
 export default FourColGrid;
